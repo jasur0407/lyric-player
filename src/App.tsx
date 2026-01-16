@@ -1,66 +1,71 @@
-import { useState } from "react";
-import { parseLRC } from "./utils/parseLRC";
-import type { WordTiming } from "./utils/splitLineToWords";
-import { splitLineToWords } from "./utils/splitLineToWords";
-import LyricsDisplay from "./components/LyricsDisplay";
-import AudioPlayer from "./components/AudioPlayer";
+import { useState } from "react"
+import AudioPlayer from "./components/AudioPlayer.tsx";
+import LRCseperate from "./utils/LRCseperate.ts"
+import LyricsDisplay from "./components/LyricsDisplay.tsx";
+import { SplitWords, type WordTiming } from "./utils/SplitWords.ts";
 
-// Sample LRC (replace with your song's lyrics)
 const lrcText = `
-[00:09.84]I'm staring at a broken door
-[00:14.18]  
-[00:18.69]My room is cold, it's making me insane
-[00:27.32]I've been waiting here so long
-[00:31.55]Another moment seems to have come
-[00:35.92]I see the dark clouds coming up again
-[00:40.89]
-[00:42.03]Running through the monsoon
-[00:44.51]Beyond the world to the end of time
-[00:48.24]Where the rain won't hurt
-[00:51.00]Fighting the storm into the blue
-[00:55.07]And when I lose myself I think of you
-[00:59.04]Together we'll be running somewhere new
-[01:04.03]Through the monsoon
-[01:08.23]Just me and you
-[01:12.26]
-[01:14.07]A half moon fading from my sight
-[01:18.73]I see your vision in its light
-[01:23.00]But now it's gone and left me so alone
-[01:31.27]I know I have to find you now
-[01:35.79]Can't hear your name, I don't know how
-[01:40.06]Why can't we make this darkness feel like home?
-[01:45.92]
-[01:46.26]Running through the monsoon
-`;
+[00:13.93](Oh-oh)
+[00:16.36](Oh-oh)
+[00:18.96](Oh-oh)
+[00:21.49](Oh-oh)
+[00:22.44]
+[00:23.21]Du stehst auf
+[00:24.57]Und kriegst gesagt wohin du gehen sollst
+[00:28.15]Wenn du da bist
+[00:29.78]Hörst du auch noch was du denken sollst
+[00:32.74]
+[00:33.37]Danke
+[00:34.73]Das war mal wieder echt 'n geiler Tag
+[00:38.32]Du sagst nichts
+[00:39.83]Und keiner fragt dich, sag mal willst du das?
+[00:43.57]
+[00:43.67]Nein, nein, nein, na-na-na-na, nein
+[00:46.31]Nein, nein, nein, na-na-na-na, nein
+[00:48.83]
+[00:48.86]Schrei
+[00:50.12]Bis du du selbst bist
+[00:51.44]Schrei
+[00:52.65]Und wenn es das Letzte ist
+[00:54.01]Schrei
+[00:55.15]Auch wenn es weh tut
+[00:56.55]Schrei so laut du kannst
+[00:58.66]
+[00:58.86]Schrei
+[01:00.29]Bis du du selbst bist
+[01:01.67]Schrei
+[01:02.78]Und wenn es das Letzte ist
+[01:04.20]Schrei
+[01:05.30]Auch wenn es weh tut
+[01:06.71]Schrei so laut du kannst
+
+`
+
 
 function App() {
   const [currentTime, setCurrentTime] = useState(0);
+  const lines = LRCseperate(lrcText);
+  const getAllWords = (lines: {time: number, text: string}[]) : WordTiming[] => {
+    const allWords: WordTiming[] = []
 
-  // Parse lines
-  const lines = parseLRC(lrcText);
-
-  // Convert all lines to word-level timings
-  const getAllWords = (lines: { time: number; text: string }[]): WordTiming[] => {
-    const allWords: WordTiming[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      const start = lines[i].time;
-      const end = lines[i + 1]?.time ?? start + 5; // fallback duration for last line
-      allWords.push(...splitLineToWords(lines[i].text, start, end));
+    for(let i = 0; i < lines.length; i++) {
+      const start = lines[i].time
+      const end = lines[i + 1]?.time ?? start + 5
+      allWords.push(...SplitWords(lines[i].text, start, end))
     }
-    return allWords;
-  };
 
-  const words = getAllWords(lines);
+    return allWords
+  }
+
+  const words = getAllWords(lines)
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-black p-6">
-      {/* Audio player */}
-      <AudioPlayer onTimeUpdate={setCurrentTime} />
-
-      {/* Lyrics display */}
-      <LyricsDisplay words={words} lines={lines} currentTime={currentTime} />
+    <div>
+      <AudioPlayer onTimeUpdate={setCurrentTime}/>
+      
+      <LyricsDisplay words={words} lines={lines} current={currentTime}/>
     </div>
-  );
+  )
 }
 
 export default App;
