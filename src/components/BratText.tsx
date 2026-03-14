@@ -14,10 +14,17 @@ export default function BratText({ text = "", width = 100 }: { text?: string; wi
     const measure = document.createElement("span");
     measure.style.visibility = "hidden";
     measure.style.whiteSpace = "nowrap";
+    measure.style.position = "absolute"; // Keeps it out of the document flow
+    
+    // CRITICAL: Apply the same font classes to the measurement tool
+    measure.className = "italianno-regular text-3xl"; 
+
     document.body.appendChild(measure);
 
     words.forEach((word) => {
-      measure.innerText = [...currentLine, word].join(" ");
+      // We join with two spaces to match your justify-between spacing feel
+      measure.innerText = [...currentLine, word].join("  ");
+      
       if (measure.offsetWidth > width && currentLine.length) {
         temp.push(currentLine);
         currentLine = [word];
@@ -33,7 +40,7 @@ export default function BratText({ text = "", width = 100 }: { text?: string; wi
   }, [text, width]);
 
   return (
-    <div ref={containerRef} style={{ width }}>
+    <div ref={containerRef} style={{ width }} className='text-white-700 italianno-regular text-3xl'>
       {lines.map((line, i) => (
         <div key={i} className="flex justify-between">
           {line.map((word, j) => (
